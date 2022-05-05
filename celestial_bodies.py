@@ -24,12 +24,12 @@ class CelestialBody():
         
     def custom_draw(self):
         WINDOW = pygame.display.get_surface()
-        pygame.draw.circle(WINDOW, self.color, (self.x_position, self.y_position), self.radius)
+        celestial_body = pygame.draw.circle(WINDOW, self.color, (self.x_position, self.y_position), self.radius)
         
-        #name_surf = FONT.render(str(self.name),True,'Black')
-        #name_rect = name_surf.get_rect(topleft = (celestial_body.center[0] - (name_surf.get_width() / 2), (celestial_body.center[1] + (self.radius))))
-    
-        #WINDOW.blit(name_surf,name_rect)
+        name_surf = FONT.render(str(self.name),True,'Black')
+        name_rect = name_surf.get_rect(topleft = (celestial_body.center[0] - (name_surf.get_width() / 2), (celestial_body.center[1] + (self.radius))))
+
+        WINDOW.blit(name_surf,name_rect)
         
     def calculate_forces(self, body):
         distance_x = body.x_position - self.x_position
