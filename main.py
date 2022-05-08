@@ -2,6 +2,8 @@ import sys
 from settings import *
 from time import sleep
 
+debug = True
+
 def main():
     pygame.display.set_caption("Pygame Space Simulator")
             
@@ -11,18 +13,24 @@ def main():
     
     clock = pygame.time.Clock()	
     
+    WINDOW.blit(BG_IMAGE, (0,0))
     while True:
         clock.tick(60) 
-        WINDOW.blit(BG_IMAGE, (0,0))
-        
+        WINDOW.fill((0, 0, 0))
+            
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()	
         
         for body in CelestialBodies:
-            body.position_update(CelestialBodies)
             body.custom_draw()
-            
+            body.position_update(CelestialBodies)
+            if debug and body.name != 'sun':
+                print(body.name)
+                print(body.x_position, body.y_position)
+                print(body.vel_x, body.vel_y)
+                print('\n')
+        
         pygame.display.update()
         
 def exit():
