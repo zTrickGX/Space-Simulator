@@ -1,5 +1,19 @@
 import pygame
+from celestial_bodies import zoom_in
 from costants import *
+
+class Button():
+    def __init__(self, rect, function, image):
+        self.rect = rect
+        self.function = function
+        if image:
+            self.image = pygame.image.load(image).convert_alpha()
+        
+    def pressed(self):
+        x, y = pygame.mouse.get_pos()
+        if pygame.mouse.get_pressed()[0]:
+            if self.rect.collidepoint(x, y):
+                return True
 
 class Ui():
     def __init__(self, *funcs):
@@ -8,24 +22,27 @@ class Ui():
         self.funcs = funcs
         self.buttons = []
         
-        self.zoom_in  = pygame.Rect(1400, 700, 150, 150)
-        self.zoom_out = pygame.Rect(1200, 700, 150, 150)
-
-        self.buttons.append(self.zoom_in)
-        self.buttons.append(self.zoom_out)
+        self.zoom_in_button = Button(pygame.Rect(1310, 725, 100, 100), funcs[0], 'Assets/zoom_in.png')
+        self.zoom_out_button = Button(pygame.Rect(1425, 725, 100, 100), funcs[1], 'Assets/zoom_out.png')
         
-
-        #pointlist = ((29, 29), (29, 30), (30, 1), (30, 0))
+        self.buttons.append(self.zoom_in_button)
+        self.buttons.append(self.zoom_out_button)
         
     def display(self):
-        x, y = pygame.mouse.get_pos()
-        for i, rect in enumerate(self.buttons):
-            pygame.draw.rect(self.win, UI_BG_COLOR, rect)
-            pygame.draw.rect(self.win, UI_BORDER_COLOR, rect, 10)
-            if pygame.mouse.get_pressed()[0]:
-                if rect.collidepoint(x, y):
-                    self.funcs[i]()
+        for button in self.buttons:
+            pygame.draw.rect(self.win, UI_BG_COLOR, button.rect)
+            pygame.draw.rect(self.win, UI_BORDER_COLOR, button.rect, 10)
+            image_rect = button.image.get_rect()
+            image_rect.center = button.rect.center
+            self.win.blit(button.image, image_rect)
+            if button.pressed():
+                button.function()
         
+        pygame.draw.rect(self.win, UI_BG_COLOR, pygame.Rect(0, 0, WIDTH, HEIGHT), 50)
+        pygame.draw.rect(self.win, UI_BORDER_COLOR, pygame.Rect(0, 0, WIDTH, HEIGHT), 10)
+        pygame.draw.rect(self.win, UI_BORDER_COLOR, pygame.Rect(50, 50, WIDTH - 100, HEIGHT - 100), 10)
         
-        pointlist = ((30, 29), (30, 30), (29, 1), (29, 0))
-        pygame.draw.polygon(self.win, UI_BORDER_COLOR, pointlist)
+        display_surface = pygame.display.get_surface()
+        debug_surf = FONT.render('Use WASD or Arrow Keys to move, use SHIFT to zoom in and CTRL to zoom out or click zoom buttons.',True,'White')
+        debug_rect = debug_surf.get_rect(topleft = (50, 20))
+        display_surface.blit(debug_surf,debug_rect)

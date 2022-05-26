@@ -1,9 +1,16 @@
+import pygame
+pygame.init()
+pygame.mixer.init()
+
+FONT = pygame.font.SysFont('comicsans', 18)
+
 WIDTH = 1600
 HEIGHT = 900
 
 FPS = 60
 
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 ORANGE = (255, 165, 0)
@@ -16,6 +23,16 @@ UI_BORDER_COLOR = '#111111'
 AU = 149.6e6 * 1000
 G = 6.67428e-11
 
-SCALE = 500/AU
+SCALE = 500 / AU
+ALT_SCALE = 500 / AU
 
-DAY = 3600*24
+MIN_SCALE = 1e-3 * 3.342245989304813e-09
+MAX_SCALE = 1e+3 * 3.342245989304813e-09
+
+X = 3.342245989304813e-09
+
+ORBIT_LENGHT = 1000
+
+MOVEMENT = 1e10
+
+DAY = 3600 * 24
