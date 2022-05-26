@@ -1,5 +1,4 @@
 import pygame
-from celestial_bodies import zoom_in
 from costants import *
 
 class Button():
