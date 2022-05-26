@@ -33,7 +33,7 @@ def main():
     BG_IMAGE = pygame.image.load('Assets/space.jpg').convert_alpha()
     
     clock = pygame.time.Clock()	
-    ui = Ui(zoom_in, zoom_out)
+    ui = Ui(zoom_in, zoom_out, move_up, move_down, move_right, move_left)
     
     while True:
         clock.tick(FPS) 

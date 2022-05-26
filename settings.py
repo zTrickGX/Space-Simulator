@@ -48,6 +48,4 @@ uranus.vel_y  =  6.80 * 1000
 neptune.vel_y =  5.43 * 1000
 pluto.vel_y   =  4.67 * 1000
 
-
-
 CelestialBodies = Stars + Planets + Moons + Asteroids
