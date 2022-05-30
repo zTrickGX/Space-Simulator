@@ -15,30 +15,30 @@ def zoom_out():
 
 def move_down(CelestialBodies):
     for body in CelestialBodies:
-        body.y_position -= MOVEMENT * (ALT_SCALE / X)
+        body.y  -= MOVEMENT * (ALT_SCALE / X)
         body.orbit = [(p[0], p[1] - MOVEMENT * (ALT_SCALE / X)) for p in body.orbit]
 
 def move_up(CelestialBodies):
     for body in CelestialBodies:
-        body.y_position += MOVEMENT * (ALT_SCALE / X)
+        body.y  += MOVEMENT * (ALT_SCALE / X)
         body.orbit = [(p[0], p[1] + MOVEMENT * (ALT_SCALE / X)) for p in body.orbit]
 
 def move_right(CelestialBodies):
     for body in CelestialBodies:
-        body.x_position -= MOVEMENT * (ALT_SCALE / X)
+        body.x  -= MOVEMENT * (ALT_SCALE / X)
         body.orbit = [(p[0] - MOVEMENT * (ALT_SCALE / X), p[1]) for p in body.orbit]
         
 def move_left(CelestialBodies):
     for body in CelestialBodies:
-        body.x_position += MOVEMENT * (ALT_SCALE / X)
+        body.x += MOVEMENT * (ALT_SCALE / X)
         body.orbit = [(p[0] + MOVEMENT * (ALT_SCALE / X), p[1]) for p in body.orbit]
 
 class CelestialBody:
-    def __init__(self, name, x_position, y_position, radius, color, mass):
+    def __init__(self, name, x , y , radius, color, mass, revolution_period):
         self.name = name
         
-        self.x_position = x_position
-        self.y_position = y_position
+        self.x  = x 
+        self.y  = y 
         
         self.radius = radius
         self.color = color
@@ -46,12 +46,14 @@ class CelestialBody:
         
         self.orbit = []
 
+        self.revolution_period = revolution_period
+        
         self.vel_x = 0
         self.vel_y = 0
 
     def custom_draw(self, win):
-        x = self.x_position * SCALE + WIDTH / 2
-        y = self.y_position * SCALE + HEIGHT / 2
+        x = self.x  * SCALE + WIDTH / 2
+        y = self.y  * SCALE + HEIGHT / 2
         
         if len(self.orbit) > 2:
             updated_points = []
@@ -63,12 +65,12 @@ class CelestialBody:
     
             pygame.draw.lines(win, self.color, False, updated_points, 1)
 
-        if len(self.orbit) > ORBIT_LENGHT:
+        if len(self.orbit) > self.revolution_period:
             self.orbit.pop(0)
         
-        pygame.draw.circle(win, self.color, (x, y), self.radius * SCALE)
+        pygame.draw.circle(win, self.color, (x, y), self.radius**2 * SCALE)
         
-        name_text = FONT.render(str(self.name), 1, WHITE)
+        name_text = FONT.render(str(self.name), 1, (255, 255, 255))
         win.blit(name_text, (x - name_text.get_width()/2, y - name_text.get_height()/2))
             
         #if type(self) != Star:
@@ -82,12 +84,9 @@ class CelestialBody:
         display_surface.blit(debug_surf,debug_rect)
     
     def calculate_forces(self, body):
-        distance_x = body.x_position - self.x_position
-        distance_y = body.y_position - self.y_position
+        distance_x = body.x - self.x 
+        distance_y = body.y - self.y 
         distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
-
-        if type(body) == Star:
-            self.distance_to_sun = distance
 
         force = G * self.mass * body.mass / distance**2
         
@@ -96,7 +95,7 @@ class CelestialBody:
         
         return force_x, force_y
 
-    def update_position(self, bodies):
+    def update(self, bodies):
         total_force_x = 0
         total_force_y = 0
         
@@ -109,18 +108,38 @@ class CelestialBody:
         self.vel_x += total_force_x / self.mass * DAY
         self.vel_y += total_force_y / self.mass * DAY
 
-        self.x_position += self.vel_x * DAY
-        self.y_position += self.vel_y * DAY
-        self.orbit.append((self.x_position, self.y_position))
+        self.x += self.vel_x * DAY
+        self.y += self.vel_y * DAY
+        self.orbit.append((self.x , self.y ))
         
 class Star(CelestialBody):
-    def __init__(self, name, x_position, y_position, mass, radius, temperature):
-        super().__init__(name, x_position, y_position, radius, YELLOW, mass)
+    def __init__(self, name, x , y , mass, radius, color, temperature, revolution_period):
+        super().__init__(name, x , y , radius, color, mass, revolution_period)
         self.temperature = temperature
         
 
 class Planet(CelestialBody):
-    def __init__(self, name, star, distance_from_star, color, mass, radius):
-        self.x_position = distance_from_star
-        self.y_position = star.y_position
-        super().__init__(name, self.x_position, self.y_position, radius, color, mass)
+    def __init__(self, name, star, distance_from_star, color, mass, radius, revolution_period):
+        self.star = star
+        self.x = self.star.x + distance_from_star
+        self.y = self.star.y
+        super().__init__(name, self.x , self.y , radius, color, mass, revolution_period)
+
+class Moon(CelestialBody):
+    def __init__(self, name, planet, distance_from_planet, color, mass, radius, revolution_period):
+        self.planet = planet
+        self.distance_from_planet = distance_from_planet
+        self.x = self.planet.x + self.distance_from_planet
+        self.y = self.planet.y
+        super().__init__(name, self.x , self.y , radius, color, mass, revolution_period)
+
+    def update(self):
+        total_force_x, total_force_y = self.calculate_forces(self.planet)
+        
+        self.vel_x += total_force_x / self.mass * DAY
+        self.vel_y += total_force_y / self.mass * DAY
+
+        self.x += self.vel_x * DAY # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        self.y += self.vel_y * DAY # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        
+        self.orbit.append((self.x , self.y ))

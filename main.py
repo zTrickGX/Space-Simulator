@@ -44,7 +44,11 @@ def main():
                 exit()	
         
         for body in CelestialBodies:
-            body.update_position(CelestialBodies)
+            if type(body) == Moon:
+                body.update()
+            else:
+                body.update(CelestialBodies)
+            
             body.custom_draw(WINDOW)
         
         inputs()
