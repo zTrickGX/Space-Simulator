@@ -1,6 +1,5 @@
 import sys
 from settings import *
-from time import sleep
 from ui import Ui 
 
 def inputs():
@@ -33,7 +32,7 @@ def main():
     BG_IMAGE = pygame.image.load('Assets/space.jpg').convert_alpha()
     
     clock = pygame.time.Clock()	
-    ui = Ui(zoom_in, zoom_out, move_up, move_down, move_right, move_left)
+    ui = Ui(zoom_in, zoom_out, move_up, move_down, move_right, move_left, speed_up, speed_down)
     
     while True:
         clock.tick(FPS) 
@@ -44,10 +43,7 @@ def main():
                 exit()	
         
         for body in CelestialBodies:
-            if type(body) == Moon:
-                body.update()
-            else:
-                body.update(CelestialBodies)
+            body.update(Stars + Planets)
             
             body.custom_draw(WINDOW)
         

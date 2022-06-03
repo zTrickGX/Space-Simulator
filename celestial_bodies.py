@@ -1,6 +1,18 @@
 import math
 from costants import *
 
+def speed_up():
+    global TIME, ALT_TIME
+    if int(TIME) < MAX_TIME:
+        TIME *= 1.05
+        ALT_TIME /= 1.05
+
+def speed_down():
+    global TIME, ALT_TIME
+    if int(TIME) > MIN_TIME:
+        TIME /= 1.05
+        ALT_TIME *= 1.05
+
 def zoom_in():
     global SCALE, ALT_SCALE
     if SCALE < MAX_SCALE:
@@ -65,22 +77,22 @@ class CelestialBody:
     
             pygame.draw.lines(win, self.color, False, updated_points, 1)
 
-        if len(self.orbit) > self.revolution_period:
+        if len(self.orbit) > self.revolution_period * ALT_TIME:
             self.orbit.pop(0)
         
         pygame.draw.circle(win, self.color, (x, y), self.radius**2 * SCALE)
         
         name_text = FONT.render(str(self.name), 1, (255, 255, 255))
-        win.blit(name_text, (x - name_text.get_width()/2, y - name_text.get_height()/2))
-            
-        #if type(self) != Star:
-        #    distance_text = FONT.render(f"{round(self.distance_to_sun/1000, 2)}km", 1, WHITE)
-        #    win.blit(distance_text, (x - distance_text.get_width()/2, y - distance_text.get_height()/2 + 20))     
-        
+        win.blit(name_text, (x - name_text.get_width()/2, y - name_text.get_height()/2))        
 
         display_surface = pygame.display.get_surface()
-        debug_surf = FONT.render(f'Zoom: {str(round(SCALE / X, 3))}',True,'White')
+        debug_surf = FONT.render(f'Zoom: {round(SCALE / X, 3)}',True,'White')
         debug_rect = debug_surf.get_rect(topleft = (80, 80))
+        display_surface.blit(debug_surf,debug_rect)
+
+        display_surface = pygame.display.get_surface()
+        debug_surf = FONT.render(f'Time: {round(TIME / 3600, 3)}',True,'White')
+        debug_rect = debug_surf.get_rect(topleft = (80, 100))
         display_surface.blit(debug_surf,debug_rect)
     
     def calculate_forces(self, body):
@@ -105,11 +117,11 @@ class CelestialBody:
                 total_force_x += force_x
                 total_force_y += force_y
 
-        self.vel_x += total_force_x / self.mass * DAY
-        self.vel_y += total_force_y / self.mass * DAY
+        self.vel_x += total_force_x / self.mass * TIME
+        self.vel_y += total_force_y / self.mass * TIME
 
-        self.x += self.vel_x * DAY
-        self.y += self.vel_y * DAY
+        self.x += self.vel_x * TIME
+        self.y += self.vel_y * TIME
         self.orbit.append((self.x , self.y ))
         
 class Star(CelestialBody):
@@ -130,16 +142,18 @@ class Moon(CelestialBody):
         self.planet = planet
         self.distance_from_planet = distance_from_planet
         self.x = self.planet.x + self.distance_from_planet
-        self.y = self.planet.y
+        self.y = self.planet.y + self.distance_from_planet
+        self.vel_x = self.planet.vel_x
+        self.vel_y = self.planet.vel_y
         super().__init__(name, self.x , self.y , radius, color, mass, revolution_period)
-
-    def update(self):
-        total_force_x, total_force_y = self.calculate_forces(self.planet)
         
-        self.vel_x += total_force_x / self.mass * DAY
-        self.vel_y += total_force_y / self.mass * DAY
-
-        self.x += self.vel_x * DAY # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        self.y += self.vel_y * DAY # AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    def update(self, bodies):
+        force_x, force_y = self.calculate_forces(self.planet)
         
-        self.orbit.append((self.x , self.y ))
+        self.vel_x += force_x / self.mass * TIME
+        self.vel_y += force_y / self.mass * TIME
+
+        self.x += + self.vel_x * TIME + self.planet.vel_x * TIME
+        self.y += + self.vel_y * TIME + self.planet.vel_y * TIME
+        
+        self.orbit.append((self.x , self.y))

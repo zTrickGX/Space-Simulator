@@ -18,26 +18,20 @@ Planets = [
         Planet('Pluto'  , sun , 39.482 * AU, (221, 196, 175), 1.303   * 10**22,  1188.0, 90560),
         ]
 
-mercury = Planets[0]; mercury.vel_y = 47.36 * 1000; mercury.vel_x = 0
-venus   = Planets[1]; venus.vel_y   = 35.02 * 1000; venus.vel_x   = 0
-earth   = Planets[2]; earth.vel_y   = 29.78 * 1000; earth.vel_x   = 0
-mars    = Planets[3]; mars.vel_y    = 24.07 * 1000; mars.vel_x    = 0
-jupiter = Planets[4]; jupiter.vel_y = 13.06 * 1000; jupiter.vel_x = 0
-saturn  = Planets[5]; saturn.vel_y  =  9.68 * 1000; saturn.vel_x  = 0
-uranus  = Planets[6]; uranus.vel_y  =  6.80 * 1000; uranus.vel_x  = 0
-neptune = Planets[7]; neptune.vel_y =  5.43 * 1000; neptune.vel_x = 0
-pluto   = Planets[8]; pluto.vel_y   =  4.67 * 1000; pluto.vel_x   = 0
+mercury = Planets[0]; mercury.vel_y = 47.36 * 1000; 
+venus   = Planets[1]; venus.vel_y   = 35.02 * 1000; 
+earth   = Planets[2]; earth.vel_y   = 29.78 * 1000; 
+mars    = Planets[3]; mars.vel_y    = 24.07 * 1000; 
+jupiter = Planets[4]; jupiter.vel_y = 13.06 * 1000; 
+saturn  = Planets[5]; saturn.vel_y  =  9.68 * 1000; 
+uranus  = Planets[6]; uranus.vel_y  =  6.80 * 1000; 
+neptune = Planets[7]; neptune.vel_y =  5.43 * 1000; 
+pluto   = Planets[8]; pluto.vel_y   =  4.67 * 1000; 
 
 Moons = [
         Moon('Moon', earth, 0.00257 * AU, (177, 173, 173), 7.3477 * 10**22, 1737.1, 27),
         ]
 
-moon = Moons[0]
-moon.vel_y = 1.022 * 1000 + earth.vel_y
-moon.vel_x = 0 + earth.vel_x
+moon    = Moons[0];   moon.vel_y = 1.022 * 1000
 
-Asteroids = [
-        
-        ]
-
-CelestialBodies = Stars + Planets + Moons + Asteroids
+CelestialBodies = Stars + Planets + Moons
