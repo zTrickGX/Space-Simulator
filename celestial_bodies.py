@@ -153,7 +153,7 @@ class Moon(CelestialBody):
         self.vel_x += force_x / self.mass * TIME
         self.vel_y += force_y / self.mass * TIME
 
-        self.x += + self.vel_x * TIME + self.planet.vel_x * TIME
-        self.y += + self.vel_y * TIME + self.planet.vel_y * TIME
+        self.x += self.vel_x * TIME + self.planet.vel_x * TIME
+        self.y += self.vel_y * TIME + self.planet.vel_y * TIME
         
         self.orbit.append((self.x , self.y))
