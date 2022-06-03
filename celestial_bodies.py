@@ -142,7 +142,7 @@ class Moon(CelestialBody):
         self.planet = planet
         self.distance_from_planet = distance_from_planet
         self.x = self.planet.x + self.distance_from_planet
-        self.y = self.planet.y + self.distance_from_planet
+        self.y = self.planet.y
         self.vel_x = 0
         self.vel_y = 0
         super().__init__(name, self.x , self.y , radius, color, mass, revolution_period)
