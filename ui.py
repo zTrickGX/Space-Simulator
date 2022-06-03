@@ -6,9 +6,9 @@ class Button():
     def __init__(self, rect, function, image = None):
         self.rect = rect
         self.function = function
-        if image:
+        try:
             self.image = pygame.image.load(image).convert_alpha()
-        else: 
+        except: 
             self.image = None
             
     def pressed(self):

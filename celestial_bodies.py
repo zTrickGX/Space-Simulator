@@ -147,7 +147,7 @@ class Moon(CelestialBody):
         self.vel_y = self.planet.vel_y
         super().__init__(name, self.x , self.y , radius, color, mass, revolution_period)
         
-    def update(self, bodies):
+    def update(self, *args):
         force_x, force_y = self.calculate_forces(self.planet)
         
         self.vel_x += force_x / self.mass * TIME
