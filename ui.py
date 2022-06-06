@@ -1,5 +1,4 @@
 from inspect import signature
-from tokenize import PlainToken
 from costants import *
 from settings import CelestialBodies
 
@@ -22,6 +21,8 @@ class Ui():
     def __init__(self, *funcs):
         self.win = pygame.display.get_surface()
         
+        self.scroll_y = 0
+        
         self.funcs = funcs
         
         self.zoom_in_button = Button(pygame.Rect(1340, 740, 80, 80), self.funcs[0], image = 'Assets/zoom_in.png')
@@ -32,8 +33,8 @@ class Ui():
         self.move_right_button = Button(pygame.Rect(WIDTH / 2 + 100, 740, 80, 80), self.funcs[4], image = 'Assets/arrow_right.png')
         self.move_left_button = Button(pygame.Rect(WIDTH / 2 - 100, 740, 80, 80), self.funcs[5], image = 'Assets/arrow_left.png')
         
-        self.speed_up_button = Button(pygame.Rect(180, 740, 80, 80), self.funcs[6])
-        self.speed_down_button = Button(pygame.Rect(80, 740, 80, 80), self.funcs[7])
+        self.speed_up_button = Button(pygame.Rect(180, 740, 80, 80), self.funcs[6], image = 'Assets/speed_up.png')
+        self.speed_down_button = Button(pygame.Rect(80, 740, 80, 80), self.funcs[7], image = 'Assets/slow_down.png')
         
         self.buttons = [
                         self.zoom_in_button, 
@@ -46,11 +47,7 @@ class Ui():
                         self.speed_down_button
                         ]
         
-    def borders(self, scroll_y):
-        pygame.draw.rect(self.win, UI_BG_COLOR, pygame.Rect(0, 0, WIDTH, HEIGHT), 100)
-        
-        self.side(scroll_y)
-        
+    def borders(self):
         pygame.draw.line(self.win, UI_BORDER_COLOR, (0, 5), (REAL_WIDTH, 5),  20)
         pygame.draw.line(self.win, UI_BORDER_COLOR, (5, 0), (5, HEIGHT), 20)
         pygame.draw.line(self.win, UI_BORDER_COLOR, (WIDTH - 5, 0),  (WIDTH - 5, HEIGHT),  20)
@@ -60,7 +57,8 @@ class Ui():
         pygame.draw.line(self.win, UI_BORDER_COLOR, (58, 51), ( 58, HEIGHT - 51), 15)
         pygame.draw.line(self.win, UI_BORDER_COLOR, (WIDTH - 58, 51), (WIDTH - 58, HEIGHT - 51), 15)
         pygame.draw.line(self.win, UI_BORDER_COLOR, (51, HEIGHT - 58), (WIDTH - 51, HEIGHT - 58), 15)
-    
+        
+        
     def draw_buttons(self):  
         for button in self.buttons:
             pygame.draw.rect(self.win, UI_BG_COLOR, button.rect)
@@ -74,32 +72,51 @@ class Ui():
                 else:
                     button.function()
     
-    def side(self, scroll_y):
+    def side(self, event):
+        pygame.draw.rect(self.win, UI_BG_COLOR, pygame.Rect(0, 0, WIDTH, HEIGHT), 100)
         pygame.draw.rect(self.win, UI_BORDER_COLOR, pygame.Rect(1600, 0, REAL_WIDTH - WIDTH, HEIGHT))
-        planet_buttons = [(pygame.Rect(1650, 16 + 50*i, 200, 40), body) for i, body in enumerate(CelestialBodies)]
+        scrollbar = pygame.Rect(REAL_WIDTH - 50, 0, 24, HEIGHT)
+        pygame.draw.rect(self.win, (255,255,255), scrollbar)
+        image = pygame.image.load('Assets/up_scroll.png').convert_alpha()
+        rect = image.get_rect(center = (scrollbar.centerx, scrollbar.centery + 28 - scrollbar.height / 2))
+        self.win.blit(image, rect)
+        image = pygame.image.load('Assets/down_scroll.png').convert_alpha()
+        rect = image.get_rect(center = (scrollbar.centerx, scrollbar.centery - 28 + scrollbar.height / 2))
+        self.win.blit(image, rect)
+        
+        planet_buttons = [(pygame.Rect(1630, 16 + 50*i, 200, 40), body) for i, body in enumerate(CelestialBodies)]
         for planet_button in planet_buttons:
             button_rect = planet_button[0]
             body = planet_button[1]
-            button_rect.y += scroll_y
+            
+            if scrollbar.collidepoint(pygame.mouse.get_pos()):
+                if event:
+                    if event.button == 4: self.scroll_y = min(self.scroll_y + 1, 0)
+                    if event.button == 5: self.scroll_y = max(self.scroll_y - 1, -1000)
+                    
+            button_rect.y += self.scroll_y
+                
             pygame.draw.rect(self.win, UI_BG_COLOR, button_rect)
             surf = FONT.render(body.name, True, 'White')
             rect = surf.get_rect(center = button_rect.center)
             self.win.blit(surf, rect)
+            
             if button_rect.collidepoint(pygame.mouse.get_pos()):
                 pygame.draw.rect(self.win, UI_BORDER_COLOR, button_rect)
                 surf = FONT.render(body.name, True, 'White')
                 rect = surf.get_rect(center = button_rect.center)
                 self.win.blit(surf, rect)
-                data = str((type(body), body.name, body.mass, body.radius))
                 
+                
+                data = str((type(body), body.name, body.mass, body.radius))
                 surf = FONT.render(data, True, 'White')
                 rect = surf.get_rect(center = (WIDTH / 2, 35))
                 self.win.blit(surf, rect)
         
-    def display(self, scroll_y):
+    def display(self, event):
         self.draw_buttons()
-        self.borders(scroll_y)
-        
+        self.side(event)
+        self.borders()
         surf = FONT.render(f'Use WASD or Arrow Keys to move, use SHIFT to zoom in and CTRL to zoom out, use Q to speed time up and E to slow time down. {pygame.mouse.get_pos()}', True, 'White')
         rect = surf.get_rect(topleft = (50, 860))
         self.win.blit(surf, rect)

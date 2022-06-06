@@ -8,7 +8,7 @@ def inputs():
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LSHIFT]:
         zoom_in()
-    if keys[pygame.K_LCTRL] :
+    if keys[pygame.K_LCTRL]:
         zoom_out()
 
     if keys[pygame.K_UP] or keys[pygame.K_w]:
@@ -37,32 +37,37 @@ def main():
 
     pygame.mixer.init()
     pygame.mixer.music.load('Assets/boundless-space.ogg')
-    pygame.mixer.music.play()
+    pygame.mixer.music.play(loops = -1)
     
     BG_IMAGE = pygame.image.load('Assets/space.jpg').convert_alpha()
+    image_rect = pygame.Rect(65, 65, 1475, 775)
     
     clock = pygame.time.Clock()	
+    
     ui = Ui(zoom_in, zoom_out, move_up, move_down, move_right, move_left, speed_up, slow_down)
     
-    scroll_y = 0
-    
     while True:
+        arg = None
         clock.tick(FPS) 
         WINDOW.blit(BG_IMAGE, (0,0))
             
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit()
+                
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 4: scroll_y = min(scroll_y + 15, 0)
-                if event.button == 5: scroll_y = max(scroll_y - 15, -1000)
-            
+                if image_rect.collidepoint(event.pos):
+                    if event.button == 4: zoom_in()
+                    if event.button == 5: zoom_out()
+                else:
+                    arg = event
+                
         for body in CelestialBodies:
             body.update(CelestialBodies)
             body.custom_draw(WINDOW)
         
         inputs()
-        Ui.display(ui, scroll_y)
+        Ui.display(ui, arg)
         
         pygame.display.update()
         
