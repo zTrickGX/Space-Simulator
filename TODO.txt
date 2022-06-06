@@ -1,0 +1,5 @@
+TODO:
+in ui.py
+- sistemare la sintassi di "data" con split() ecc...
+- in base a type(body) cambiare la sintassi di "data"
+- popup menù

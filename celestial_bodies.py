@@ -2,16 +2,14 @@ import math
 from costants import *
 
 def speed_up():
-    global TIME, ALT_TIME
-    if int(TIME) < MAX_TIME:
-        TIME *= 1.05
-        ALT_TIME /= 1.05
+    global TIME
+    if TIME < MAX_TIME:
+        TIME += 180
 
-def speed_down():
-    global TIME, ALT_TIME
-    if int(TIME) > MIN_TIME:
-        TIME /= 1.05
-        ALT_TIME *= 1.05
+def slow_down():
+    global TIME
+    if TIME > MIN_TIME:
+        TIME -= 180
 
 def zoom_in():
     global SCALE, ALT_SCALE
@@ -45,8 +43,14 @@ def move_left(CelestialBodies):
         body.x += MOVEMENT * (ALT_SCALE / X)
         body.orbit = [(p[0] + MOVEMENT * (ALT_SCALE / X), p[1]) for p in body.orbit]
 
+def show_data(data, y_offset = 0):
+    display_surface = pygame.display.get_surface()
+    surf = FONT.render(data, True, 'White')
+    rect = surf.get_rect(topleft = (80, 80 + y_offset))
+    display_surface.blit(surf, rect)
+
 class CelestialBody:
-    def __init__(self, name, x , y , radius, color, mass, revolution_period):
+    def __init__(self, name, x, y, radius, color, mass, revolution_period):
         self.name = name
         
         self.x  = x 
@@ -77,23 +81,16 @@ class CelestialBody:
     
             pygame.draw.lines(win, self.color, False, updated_points, 1)
 
-        if len(self.orbit) > self.revolution_period * ALT_TIME:
+        if len(self.orbit) > self.revolution_period * TIME:
             self.orbit.pop(0)
-        
-        pygame.draw.circle(win, self.color, (x, y), self.radius**2 * SCALE)
-        
+            
+        pygame.draw.circle(win, self.color, (x, y), self.radius * SCALE)
+
         name_text = FONT.render(str(self.name), 1, (255, 255, 255))
-        win.blit(name_text, (x - name_text.get_width()/2, y - name_text.get_height()/2))        
-
-        display_surface = pygame.display.get_surface()
-        debug_surf = FONT.render(f'Zoom: {round(SCALE / X, 3)}',True,'White')
-        debug_rect = debug_surf.get_rect(topleft = (80, 80))
-        display_surface.blit(debug_surf,debug_rect)
-
-        display_surface = pygame.display.get_surface()
-        debug_surf = FONT.render(f'Time: {round(TIME / 3600, 3)}',True,'White')
-        debug_rect = debug_surf.get_rect(topleft = (80, 100))
-        display_surface.blit(debug_surf,debug_rect)
+        win.blit(name_text, (x - name_text.get_width()/2, y - name_text.get_height()/2))
+        
+        show_data(f'Zoom: {round(SCALE / X, 3) if SCALE / X < 1 else int(SCALE / X)}')
+        show_data(f'Time: {TIME / 3600 * 10}', y_offset = 20)
     
     def calculate_forces(self, body):
         distance_x = body.x - self.x 
@@ -138,22 +135,16 @@ class Planet(CelestialBody):
         super().__init__(name, self.x , self.y , radius, color, mass, revolution_period)
 
 class Moon(CelestialBody):
-    def __init__(self, name, planet, distance_from_planet, color, mass, radius, revolution_period):
+    def __init__(self, name, planet, distance_from_planet, color, mass, radius):
         self.planet = planet
         self.distance_from_planet = distance_from_planet
         self.x = self.planet.x + self.distance_from_planet
         self.y = self.planet.y
-        self.vel_x = 0
-        self.vel_y = 0
-        super().__init__(name, self.x , self.y , radius, color, mass, revolution_period)
-        
+        self.vel_tan = 0
+        super().__init__(name, self.x , self.y , radius, color, mass, 0)
+    
     def update(self, *args):
-        force_x, force_y = self.calculate_forces(self.planet)
         
-        self.vel_x += force_x / self.mass * TIME
-        self.vel_y += force_y / self.mass * TIME
-
-        self.x += self.vel_x * TIME + self.planet.vel_x * TIME
-        self.y += self.vel_y * TIME + self.planet.vel_y * TIME
-        
-        self.orbit.append((self.x , self.y))
+        self.x += (self.planet.vel_x + self.vel_tan * ((self.y - self.planet.y) / self.distance_from_planet)) * TIME 
+        self.y += (self.planet.vel_y + self.vel_tan * ((self.planet.x - self.x) / self.distance_from_planet)) * TIME 
+        pygame.draw.line(pygame.display.get_surface(), self.color, (self.x * SCALE + WIDTH / 2, self.y * SCALE + HEIGHT / 2), (self.planet.x * SCALE + WIDTH / 2, self.planet.y * SCALE + HEIGHT / 2), 1)

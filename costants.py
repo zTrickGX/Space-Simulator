@@ -2,17 +2,18 @@ import pygame
 pygame.init()
 pygame.mixer.init()
 
-FONT = pygame.font.SysFont('comicsans', 18)
+FONT = pygame.font.SysFont('Arial', 20)
 
 WIDTH = 1600
+REAL_WIDTH = 1900
 HEIGHT = 900
 
-FPS = 60
+FPS = 600
 
 UI_BG_COLOR = '#222222'
 UI_BORDER_COLOR = '#111111'
 
-AU = 149.6e6 * 1000
+AU = 149597870707
 G = 6.67428e-11
 
 SCALE = 500 / AU
@@ -25,8 +26,7 @@ X = 3.342245989304813e-09
 
 MOVEMENT = 1e10
 
-TIME = 3600 * 24
-ALT_TIME = 3600 * 24
+TIME = 1800 * 5
 
-MAX_TIME = 3600 * 24
-MIN_TIME = 3600 * 5
+MAX_TIME = 1800 * 5
+MIN_TIME = 1800 * 0.25

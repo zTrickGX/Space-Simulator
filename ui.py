@@ -1,4 +1,5 @@
 from inspect import signature
+from tokenize import PlainToken
 from costants import *
 from settings import CelestialBodies
 
@@ -45,7 +46,22 @@ class Ui():
                         self.speed_down_button
                         ]
         
-    def display(self):
+    def borders(self, scroll_y):
+        pygame.draw.rect(self.win, UI_BG_COLOR, pygame.Rect(0, 0, WIDTH, HEIGHT), 100)
+        
+        self.side(scroll_y)
+        
+        pygame.draw.line(self.win, UI_BORDER_COLOR, (0, 5), (REAL_WIDTH, 5),  20)
+        pygame.draw.line(self.win, UI_BORDER_COLOR, (5, 0), (5, HEIGHT), 20)
+        pygame.draw.line(self.win, UI_BORDER_COLOR, (WIDTH - 5, 0),  (WIDTH - 5, HEIGHT),  20)
+        pygame.draw.line(self.win, UI_BORDER_COLOR, (0, HEIGHT - 5), (REAL_WIDTH, HEIGHT - 5), 20)
+                                
+        pygame.draw.line(self.win, UI_BORDER_COLOR, (51, 58), (WIDTH - 51, 58), 15)
+        pygame.draw.line(self.win, UI_BORDER_COLOR, (58, 51), ( 58, HEIGHT - 51), 15)
+        pygame.draw.line(self.win, UI_BORDER_COLOR, (WIDTH - 58, 51), (WIDTH - 58, HEIGHT - 51), 15)
+        pygame.draw.line(self.win, UI_BORDER_COLOR, (51, HEIGHT - 58), (WIDTH - 51, HEIGHT - 58), 15)
+    
+    def draw_buttons(self):  
         for button in self.buttons:
             pygame.draw.rect(self.win, UI_BG_COLOR, button.rect)
             if button.image:
@@ -57,20 +73,33 @@ class Ui():
                     button.function(CelestialBodies)
                 else:
                     button.function()
-                    
-        pygame.draw.rect(self.win, UI_BG_COLOR, pygame.Rect(0, 0, WIDTH, HEIGHT), 100)
+    
+    def side(self, scroll_y):
+        pygame.draw.rect(self.win, UI_BORDER_COLOR, pygame.Rect(1600, 0, REAL_WIDTH - WIDTH, HEIGHT))
+        planet_buttons = [(pygame.Rect(1650, 16 + 50*i, 200, 40), body) for i, body in enumerate(CelestialBodies)]
+        for planet_button in planet_buttons:
+            button_rect = planet_button[0]
+            body = planet_button[1]
+            button_rect.y += scroll_y
+            pygame.draw.rect(self.win, UI_BG_COLOR, button_rect)
+            surf = FONT.render(body.name, True, 'White')
+            rect = surf.get_rect(center = button_rect.center)
+            self.win.blit(surf, rect)
+            if button_rect.collidepoint(pygame.mouse.get_pos()):
+                pygame.draw.rect(self.win, UI_BORDER_COLOR, button_rect)
+                surf = FONT.render(body.name, True, 'White')
+                rect = surf.get_rect(center = button_rect.center)
+                self.win.blit(surf, rect)
+                data = str((type(body), body.name, body.mass, body.radius))
+                
+                surf = FONT.render(data, True, 'White')
+                rect = surf.get_rect(center = (WIDTH / 2, 35))
+                self.win.blit(surf, rect)
         
-        pygame.draw.line(self.win, UI_BORDER_COLOR, (0, 5), (WIDTH, 5),  20)
-        pygame.draw.line(self.win, UI_BORDER_COLOR, (5, 0), (5, HEIGHT), 20)
-        pygame.draw.line(self.win, UI_BORDER_COLOR, (WIDTH - 5, 0),  (WIDTH - 5, HEIGHT),  20)
-        pygame.draw.line(self.win, UI_BORDER_COLOR, (0, HEIGHT - 5), (WIDTH, HEIGHT - 5), 20)
-                                
-        pygame.draw.line(self.win, UI_BORDER_COLOR, (51, 58), (WIDTH - 51, 58), 15)
-        pygame.draw.line(self.win, UI_BORDER_COLOR, (58, 51), ( 58, HEIGHT - 51), 15)
-        pygame.draw.line(self.win, UI_BORDER_COLOR, (WIDTH - 58, 51), (WIDTH - 58, HEIGHT - 51), 15)
-        pygame.draw.line(self.win, UI_BORDER_COLOR, (51, HEIGHT - 58), (WIDTH - 51, HEIGHT - 58), 15)
+    def display(self, scroll_y):
+        self.draw_buttons()
+        self.borders(scroll_y)
         
-        display_surface = pygame.display.get_surface()
-        debug_surf = FONT.render('Use WASD or Arrow Keys to move, use SHIFT to zoom in and CTRL to zoom out or click zoom buttons.',True,'White')
-        debug_rect = debug_surf.get_rect(topleft = (50, 20))
-        display_surface.blit(debug_surf,debug_rect)
+        surf = FONT.render(f'Use WASD or Arrow Keys to move, use SHIFT to zoom in and CTRL to zoom out, use Q to speed time up and E to slow time down. {pygame.mouse.get_pos()}', True, 'White')
+        rect = surf.get_rect(topleft = (50, 860))
+        self.win.blit(surf, rect)
