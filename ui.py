@@ -107,7 +107,6 @@ class Ui():
                 rect = surf.get_rect(center = button_rect.center)
                 self.win.blit(surf, rect)
                 
-                
                 data = str((type(body), body.name, body.mass, body.radius))
                 surf = FONT.render(data, True, 'White')
                 rect = surf.get_rect(center = (WIDTH / 2, 35))
