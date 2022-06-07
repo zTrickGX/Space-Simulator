@@ -2,4 +2,4 @@
 Progetto Vitali Federico
 
 Progetto di scuola di fisica/matematica:
-- simulazione spaziale con stelle, pianeti, lune e asteroidi
+- simulatore fisico spaziale con stelle, pianeti e lune che usa dati reali per tracciare in maniera approssimativa le orbite dei vari corpi celesti 
