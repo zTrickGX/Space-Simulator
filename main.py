@@ -1,8 +1,6 @@
 import sys
 from settings import *
 from ui import Ui
-from time import sleep
-from threading import Thread
 
 def inputs():
     keys = pygame.key.get_pressed()
